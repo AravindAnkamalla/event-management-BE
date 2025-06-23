@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { PrismaClient, Role } from "@prisma/client";
 import { sendPasswordEmail } from "../../utils/mailer";
+import { hashSync } from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -132,7 +133,7 @@ export const upsertUser = async (req: Request, res: Response) => {
       create: {
         username,
         email,
-        password: generatedPassword,
+        password: hashSync(generatedPassword, 10),
         mobile,
         role,
         createdBy: Role.ADMIN,
@@ -154,3 +155,18 @@ export const upsertUser = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+export const deleteUser = async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  try {
+    const user = await prisma.user.delete({
+      where: { id: Number(userId) },
+    });
+    res.status(200).json({
+      message: "User deleted successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}

@@ -85,9 +85,15 @@ export const upsertEventSchema = createEventSchema.extend({
 
 export const upsertEvent = async (req: Request, res: Response) => {
   try {
-    console.log("Received request to upsert event:", JSON.stringify(req.body, null, 2));
+    console.log(
+      "Received request to upsert event:",
+      JSON.stringify(req.body, null, 2)
+    );
     const validatedInput = upsertEventSchema.parse(req.body);
-    console.log("Validated input for upsertEvent:", JSON.stringify(validatedInput, null, 2));
+    console.log(
+      "Validated input for upsertEvent:",
+      JSON.stringify(validatedInput, null, 2)
+    );
     const { id, ...eventData } = validatedInput;
 
     if (id) {
@@ -118,7 +124,7 @@ export const upsertEvent = async (req: Request, res: Response) => {
       res.status(400).json({ error: e.errors });
     }
 
-     res
+    res
       .status(500)
       .json({ error: "An error occurred while upserting the event" });
   }
@@ -219,5 +225,26 @@ export const userRegisteredEvents = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error fetching registered events:", error);
     res.status(500).json({ error: "Server error" });
+  }
+};
+export const deleteEvent = async (req: Request, res: Response) => {
+  const { eventId } = req.params;
+
+  if (!eventId || isNaN(Number(eventId))) {
+    res.status(400).json({ error: "Invalid event ID" });
+  }
+
+  try {
+    const deletedEvent = await prismaClient.event.delete({
+      where: { id: Number(eventId) },
+    });
+
+    res.status(200).json({
+      message: "Event deleted successfully",
+      event: deletedEvent,
+    });
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

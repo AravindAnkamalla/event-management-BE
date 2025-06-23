@@ -6,7 +6,7 @@ export const createUserSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters long"),
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters long")
+    .min(6, "Password must be at least 8 characters long")
     .max(64, "Password cannot exceed 64 characters"),
   email: z.string().email("Invalid email address"),
   mobile: z.string().optional(),
@@ -16,7 +16,7 @@ export const createUserSchema = z.object({
 export const loginSchema = z.object({
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters long")
+    .min(6, "Password must be at least 8 characters long")
     .max(64, "Password cannot exceed 64 characters"),
   email: z.string().email("Invalid email address"),
 });

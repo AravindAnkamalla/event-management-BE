@@ -1,6 +1,7 @@
 import { RequestHandler, Router } from "express";
 import {
   createUsers,
+  deleteUser,
   getUserById,
   getUsers,
   upsertUser,
@@ -32,5 +33,10 @@ adminRoutes.post(
   authorizeRoles(["ADMIN"]) as RequestHandler,
   upsertUser
 );
-
+adminRoutes.delete(
+  "/users/:userId/delete",
+  authenticateUser as RequestHandler,
+  authorizeRoles(["ADMIN"]) as RequestHandler,
+  deleteUser
+);
 export default adminRoutes;

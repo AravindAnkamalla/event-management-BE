@@ -2,6 +2,7 @@ import { RequestHandler, Router } from "express";
 import { authorizeRoles } from "../middleware/authorization";
 import { authenticateUser } from "../middleware/authentication";
 import {
+  deleteEvent,
   getEventDetailsWithUsers,
   getEvents,
   upsertEvent,
@@ -27,11 +28,18 @@ eventRoutes.get(
   getEventDetailsWithUsers
 );
 eventRoutes.get(
-  "/event/:userId/registered",
+  "/:userId/registered",
   authenticateUser as RequestHandler,
   authorizeRoles(["USER"]) as RequestHandler,
   userRegisteredEvents
 );
+eventRoutes.delete(
+  "/:eventId/delete",
+  authenticateUser as RequestHandler,
+  authorizeRoles(["ADMIN"]) as RequestHandler,
+  deleteEvent
+);
+
 
 
 export default eventRoutes;
