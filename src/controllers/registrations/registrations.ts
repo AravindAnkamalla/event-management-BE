@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prismaClient } from "../..";
-import { createRegistrationSchema } from "../auth/data.validation";
+import { createRegistrationSchema } from "../../validatations.ts/data.validation";
 
 export const registerEvent = async (req: Request, res: Response) => {
   try {

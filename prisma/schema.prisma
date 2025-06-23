@@ -25,6 +25,10 @@ enum RegistrationStatus {
   REGISTERED
   CANCELLED
 }
+enum InvitationStatus {
+  READY
+  SENT
+}
 
 model User {
   id       Int    @id @default(autoincrement())
@@ -33,6 +37,12 @@ model User {
   email    String @unique
   mobile   String?
   role     Role   @default(USER)
+  invitation InvitationStatus @default(READY)
+  createdBy Role @default(ADMIN)
+  createdAt DateTime @default(now()) 
+  updatedBy Role @default(ADMIN)
+  updatedAt DateTime @default(now()) @updatedAt
+  isFirstLogin Boolean @default(true)
   registrations Registration[]
 
   @@map("users")

@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
 import { hashSync, compareSync } from "bcrypt";
 import * as jwt from "jsonwebtoken";
-import { loginSchema, createUserSchema } from "./data.validation";
+import {
+  loginSchema,
+  createUserSchema,
+} from "../../validatations.ts/data.validation";
 import { prismaClient } from "../..";
-
+import dotenv from "dotenv";
+dotenv.config();
 export const login = async (req: Request, res: Response) => {
   try {
     const validatedInput = loginSchema.parse(req.body);
+
     const { email, password } = validatedInput;
     let user = await prismaClient.user.findFirst({
       where: {
@@ -24,9 +29,12 @@ export const login = async (req: Request, res: Response) => {
         userId: user?.id,
         role: user?.role,
       },
-      "event-management"
+      process.env.JWT_SECRET as string
     );
-    res.status(200).json({ user, token });
+    if (user) {
+      const { password: _, ...userWithoutPassword } = user;
+      res.status(200).json({ user: userWithoutPassword, token });
+    }
   } catch (e) {
     res.status(400).json({ error: e });
   }

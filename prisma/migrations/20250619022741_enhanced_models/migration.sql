@@ -1,0 +1,10 @@
+-- CreateEnum
+CREATE TYPE "InvitationStatus" AS ENUM ('READY', 'SENT');
+
+-- AlterTable
+ALTER TABLE "users" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "createdBy" "Role" NOT NULL DEFAULT 'ADMIN',
+ADD COLUMN     "invitation" "InvitationStatus" NOT NULL DEFAULT 'READY',
+ADD COLUMN     "isFirstLogin" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "updatedBy" "Role" NOT NULL DEFAULT 'ADMIN';
