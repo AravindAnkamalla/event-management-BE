@@ -1,23 +1,51 @@
-import 'dotenv/config'; 
-import nodemailer from 'nodemailer';
 
-export const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_FROM,       
-    pass: process.env.EMAIL_PASSWORD,   
-  },
-});
+import 'dotenv/config';
+import { Resend } from 'resend';
+import { createAccountCreatedEmailTemplate, createOtpEmailTemplate } from './emailTemplates';
 
-export const sendPasswordEmail = async (to: string, username: string, password: string) => {
-  console.log(`Sending password email to ${to} for user ${username}`);
-  if (!process.env.EMAIL_FROM || !process.env.EMAIL_PASSWORD) {
-    throw new Error('Email configuration is not set in environment variables');
-  }
-  await transporter.sendMail({
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export const sendAccountCreatedEmail = async (
+  to: string,
+  username: string,
+  email: string,
+  password: string
+) => {
+  const { html, text } = createAccountCreatedEmailTemplate(username, email, password);
+
+  const { error } = await resend.emails.send({
     from: `"Event Team" <${process.env.EMAIL_FROM}>`,
     to,
-    subject: 'Your Account Password',
-    text: `Hello ${username},\n\nYour account has been created. Your login password is: ${password}\n\nPlease change it after login.`,
+    subject: '🎉 Your Event Account Has Been Created',
+    html,
+    text,
   });
+
+  if (error) {
+    console.error('Failed to send account created email:', error);
+    throw new Error('Account creation email failed');
+  }
+};
+
+export const sendOtpEmail = async (
+  to: string,
+  username: string,
+  otp: string,
+  expirationMinutes = 10
+) => {
+  const { html, text } = createOtpEmailTemplate(username, otp, expirationMinutes);
+
+  const { error } = await resend.emails.send({
+    from: `"Event Team" <${process.env.EMAIL_FROM}>`,
+    to,
+    subject: '🔐 Your OTP Code',
+    html,
+    text,
+  });
+
+  if (error) {
+    console.error('Failed to send OTP email:', error);
+    throw new Error('OTP email failed');
+  }
 };

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { PrismaClient, Role } from "@prisma/client";
-import { sendPasswordEmail } from "../../utils/mailer";
 import { hashSync } from "bcrypt";
+import { createAccountCreatedEmailTemplate } from "../../utils/emailTemplates";
 
 const prisma = new PrismaClient();
 
@@ -44,7 +44,7 @@ export const createUsers = async (req: Request, res: Response) => {
         createdBy: Role.ADMIN,
         updatedBy: Role.ADMIN,
       });
-      emailTasks.push(sendPasswordEmail(user.email, user.username, password));
+      await createAccountCreatedEmailTemplate(user.email, user.username, password)
     }
 
     const result = await prisma.user.createMany({
@@ -143,7 +143,7 @@ export const upsertUser = async (req: Request, res: Response) => {
 
     if (!id) {
       console.log("New user created, sending password email");
-      await sendPasswordEmail(email, username, generatedPassword);
+      await createAccountCreatedEmailTemplate(email, username, generatedPassword);
     }
 
     res.status(200).json({
