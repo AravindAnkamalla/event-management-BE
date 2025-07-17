@@ -81,4 +81,14 @@ model Registration {
 }
 
 
+model OTP {
+  id        Int      @id @default(autoincrement())
+  email     String
+  code      String   @db.VarChar(6)
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
 
+  @@index([email])
+  @@map("otps")
+}
