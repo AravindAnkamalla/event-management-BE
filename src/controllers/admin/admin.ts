@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
-import { PrismaClient, Role } from "@prisma/client";
+import { InvitationStatus, PrismaClient, Role } from "@prisma/client";
 import { hashSync } from "bcrypt";
-import { createAccountCreatedEmailTemplate } from "../../utils/emailTemplates";
+import { sendAccountCreatedEmail } from "../../utils/mailer";
+import { error } from "console";
 
 const prisma = new PrismaClient();
 
@@ -38,13 +39,13 @@ export const createUsers = async (req: Request, res: Response) => {
       usersToCreate.push({
         username: user.username,
         email: user.email,
-        password,
+        password: hashSync(password, 10),
         mobile: user.mobile,
         role: user.role ?? Role.USER,
         createdBy: Role.ADMIN,
         updatedBy: Role.ADMIN,
       });
-      await createAccountCreatedEmailTemplate(user.email, user.username, password)
+     await sendAccountCreatedEmail({username:user.username, email:user.email, password :password});
     }
 
     const result = await prisma.user.createMany({
@@ -142,8 +143,13 @@ export const upsertUser = async (req: Request, res: Response) => {
     });
 
     if (!id) {
-      console.log("New user created, sending password email");
-      await createAccountCreatedEmailTemplate(email, username, generatedPassword);
+      const message =  await sendAccountCreatedEmail({username:user.username, email:user.email, password :generatedPassword});
+      if (message.msg === 'Email sent successfully') {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { invitation: InvitationStatus.SENT },
+        });
+      }
     }
 
     res.status(200).json({
