@@ -2,15 +2,9 @@ import { Request, Response } from "express";
 import { InvitationStatus, PrismaClient, Role } from "@prisma/client";
 import { hashSync } from "bcrypt";
 import { sendAccountCreatedEmail } from "../../utils/mailer";
-import { error } from "console";
+import { generateNumericPassword } from "../../utils/otp";
 
 const prisma = new PrismaClient();
-
-const generateNumericPassword = (length: number = 6): string => {
-  return Math.floor(Math.random() * Math.pow(10, length))
-    .toString()
-    .padStart(length, "0");
-};
 
 export const createUsers = async (req: Request, res: Response) => {
   try {

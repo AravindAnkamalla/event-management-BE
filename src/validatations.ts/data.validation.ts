@@ -82,3 +82,16 @@ export const updateEventSchema = z.object({
 export const updateRegistrationSchema = z.object({
   status: z.enum(["REGISTERED", "CANCELLED"]),
 });
+export const sendOtpSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+export const verifyOtpSchema = z.object({
+  email: z.string().email(),
+  code: z.string().length(6), // assuming 6-digit numeric OTP
+});
+
+export const resetPasswordSchema = z.object({
+  email: z.string().email(),
+  otp: z.string().length(6),
+  newPassword: z.string().min(6),
+});
